@@ -1,3 +1,5 @@
+'polymorphism'
+
 class Lightsaber < ActiveRecord::Base
   def set_color(warrior)
     self.color = pick_color(warrior.class)

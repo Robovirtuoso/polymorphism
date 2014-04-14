@@ -1,4 +1,4 @@
-'introduction.yml'
+'../introduction.yml'
 
 'lightsabers/if_else'
 'lightsabers/case'

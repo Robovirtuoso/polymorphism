@@ -1,6 +1,8 @@
+'case'
+
 class SithInDisguisePresenter
-  def initialize(sith)
-    @sith = sith
+  def initialize(jedi)
+    @jedi = jedi
   end
 
   def alterior_motives

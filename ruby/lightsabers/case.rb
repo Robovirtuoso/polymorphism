@@ -1,3 +1,4 @@
+'refactor'
 # General Grevous
 class Kaleesh < ActiveRecord::Base
   has_many :lightsabers, as: :warrior

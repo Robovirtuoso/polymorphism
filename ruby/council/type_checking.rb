@@ -1,3 +1,4 @@
+'polymorphism'
 class HighCouncilController < ApplicationController
   def prepare_for_meeting(jedi)
     if jedi.is_palpatine? || jedi.is_apprentice_of_palpatine?

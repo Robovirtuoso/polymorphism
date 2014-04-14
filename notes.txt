@@ -1,0 +1,48 @@
+Hello, my name is Alex Williams, I work at Acumen Brands in Fayetteville. We're an E-Commerce based company and own stores such as countryoutfitter. I'm a rubyist. I've been writing ruby for about two years now. I also write JavaScript and CoffeeScript. This talk was originally given in ruby, and I've done my best to convert these examples over to C# but please forgive me if something clearly won't compile or doesn't quite make sense, I'm hoping you'll be able to get the gist of what I'm saying and be able to apply these techniques on your own.
+
+Tonight's talk is about polymorphism. Now what exactly is polymorphism? Well there are several different types of polymorphism and the one I'm talking about is known as 'ad hoc polymorphism'. Here is a literal defintion of what ad hoc polymorphism is. I don't know about you, but for me really dense definitions do not help my understanding of concepts. There is a concept that is very similar to polymorphism that's easier to explain and that's duck typing.
+
+Duck typing and ad hoc polymorphism define somewhat of a contract between objects. They say, if you respond to the following messages, we can do business. Polymorphism doesn't care of you're a Person class, an Animal class, or a really complicated domain object, if you quack, you're a duck. In ruby, these contracts are implicit. However in C# you have this concept baked into your language in the form of interfaces.
+
+Now why do this? Why go through the extra effort of defining implicit, or explicit contracts between objects. It seems ambiguous. One of the biggest wins that polymorphism provides is extensibility. As developers we spend the majority of our time understanding, editing and adding on to existing code. When was the last time you were asked to add a new feature to a project and it took you less than an hour? The last time I did was because I had written the original feature using polymorphism. Accomidating for the new requirements was as simple as adding a new class that responded to the methods I needed it to and the feature was finished very quickly.
+
+This is a quote from Kent Beck, one of the major pioneers of Smalltalk, which I believe is the first object oriented programming language.
+
+When you write code, whether it is in your intention or not you are defining a convention for others to follow. I assert we should write our code with the intention to have easily extendable processes. This makes life much easier for the next, and if we're honest more often than not the 'next guy' having to deal with your code, is you six months from now.
+
+For the fun part! Let's jump into some code.
+
+You have a Star Wars based application. In this app you have Jedi and Siths, of which have lightsabers. For those familiar with ASP .NET or MCV architechtures, these classes would be your model classes. In the set method here I'm saying that when you add a lightsaber to my Jedi, or Sith's collection of lightsabers, then execute a callback, and return my collection.
+
+After a lightsaber has been given to a jedi or sith, we then set the lightsabers color based on who owns it. This is a fairly innocent check. You wouldn't really think anything about it. If a lightsaber belongs to a Jedi then it's color will be blue green or purple, otherwise, it's obviously a sith so it's color will be red.
+
+But as they always they do, requirements change, episode II comes out and now General Grevous is on the scene. Well now there's an issue because General Grevous is neither a Jedi or a Sith. So what do you do? The switch statement. How familiar does this look? Again, there's nothing wrong with a switch statement. It is a valid part of any language. But the problem is you have defined a convention. And that is, when a new requirement comes in, add a new case. This will make your code incredibly hard to test as you have to have a different context for every different case. And who here has had to mangle these switch statements because one of the cases was in the wrong order? This is not maintanable code. Logic like this continues to get more dense and will be duplicated.
+
+Whenever I see something like this, I try to refactor it. It helps me see if there's a pattern. A quick and easy refactor with switch statements is a Dictionary.
+
+This code is significantly cleaner. We've removed the assignment duplication and delegated the decision making to a pick color method that grabs the color based on the class name. This is clean and easy to understand. But the problem is to add to this when requirements change, we have to open up the already working Lightsaber class and change code, potentinally introducing bugs and more complexity. But this refactor was a win. I see the pattern. A character points to a color. Why don't we put the color on the character? This is our duck type.
+
+All classes that can carry a lightsaber must implement our IWieldable interface. Now a Lightsaber can accept any IWieldable class. Because they define an EnergyColor method it doesn't matter what their class is, what their responsibility is, who they actually are, the fact that they respond to our duck method is what matters. Now extending functionality, adding that General Grevous class or a Han Solo class is as simple as creating a class that implements our interface. This also makes our Lightsaber incredibly easy to test, we can just instantiate it and pass in a mock object that defines our wieldable interface. Regardless of what new classes need a lightsaber we will never have to change this test. It can just exist as working code and be done with.
+
+Any questions?
+
+Next example!
+
+A high council meeting is to be called! And your stakeholder would like information for all of the council members to be displayed. However they would like specific information displayed about sith's in disguise. Wanting to display slightly different information, but from a common interface, is a problem we can solve using the decorator pattern. This will keep logic out of the view and allow us to get more specific information about this character.
+
+We start by gathering all the Jedi and then giving them to a prepare for meeting method. This then does another seemingly innocent check to decide whether our object needs a decorator. If you're Palpatine, you're obviously a sith in disguise, and since he's the only sith in disguise this is a valid check, otherwise you're just a jedi.
+
+But what happens when requirements changed and this needs to be added on to? Now Anakin has become a sith and we want information about him, Yoda needs specific information, and so on and so forth. Now we have to decide what kind of decorator to use for our object.
+At this point we can't even use a switch statement as there's an or involved. But we've arrived at the same problem we had before. This is really hard to test, maintain and extend. It will continue to grow larger and larger. Bugs will grow out of code like this.
+
+Boolean checks, while seemingly harmless, I will be bold enough to say are cancer to your code. Especially if they are a database field. Once they get in, you will never get them out and you are coupled to this kind of coding. You have to procedurally ask your object questions about itself to make a decision. This isn't polymorphic, and it's most certainly not object oriented.
+
+So if we decide that boolean checks aren't what we really want, then what? How do I decide if someone is a jedi or a sith in disguise? Type fields. Instead of putting domain specific logic in the form of a question, expecting a true or false value, have a type field to return that domain specific type. This is polymorphic and it can make your life a lot easier.
+
+Let's say we have all of our Jedi implement a council member interface, which defines a council status method, returning what type of council member they are. If our jedi is a sith in disguise, that's what our council status method will return. With this, we can use a factory pattern to dynamically create our decorator classes. All we have to do is have our council status method return the name of the class we want it to be able to instantiate.
+
+Now anytime a specific information about some new council member needs to be added, all we have to do is add a new class. Our tests for our controller and our factory never have to change. We extend code by adding new code, we don't have to edit existing code. This removes the likelyhood of bugs, makes adding new code fast and overall increases quality of life.
+
+To wrap up these are the benefits to polymorphism. Small downside can be potential loss of clarity. Whenever you get into meta programming and doing stuff like what I was showing with the factory pattern, it can be confusing, but I argue that the loss of clarity is worth the benefits.
+
+Thank you
